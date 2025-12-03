@@ -197,7 +197,7 @@ def ljdump(Server, Username, Password, Journal, verbose=True):
                     pprint.pprint(x)
                     errors += 1
                     if str(x).find("will be able to continue posting within an hour."):
-                        print "Waiting a hour"
+                        print("Waiting a hour")
                         time.sleep(3600)
                         continue
             lastsync = item['time']
