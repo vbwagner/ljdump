@@ -1,0 +1,3 @@
+- Protect against malicious XML
+- Clean up all sorts of lint (use with-open, etc.)
+- In dumpelement, base64-encode the xpostdetail field

@@ -1,5 +1,23 @@
 ChangeLog - ljdump
 
+Version 2.0.0 - 2024-09-01
+
+- Support (and require) Python 3
+- Prompt for alternative server, defaulting to LJ
+- Use "clear" auth method, since Dreamwidth has dropped challenge
+  auth; the challenge method is incompatible with secure password
+  handling on the server.
+- Correspondingly, default all URLs to https: to protect passwords
+  in transit.
+- Bugfix: GUI was ignoring "journal" field
+- Add --quiet option to suppress log messages
+- Allow config file to omit password, in which case ljdump will
+  prompt for it
+- Environment variable LJDUMP_CONFIG_PATH allows reading config
+  file from alternative path.
+- Stable order of fields in XML output. (Tag order is still not
+  stable, but that's coming as one string from the server.)
+
 Version 1.5.1 - 2010-12-29
 
 - Suppress warning about deprecated md5 module

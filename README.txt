@@ -1,4 +1,4 @@
-ljdump - livejournal archiver
+ljdump - livejournal (or Dreamwidth) archiver
 
 This program reads the journal entries from a livejournal (or compatible)
 blog site and archives them in a subdirectory named after the journal name.
@@ -27,8 +27,10 @@ The configuration settings are:
   username - The livejournal user name. A subdirectory will be created
              with this same name to store the journal entries.
 
-  password - The account password. This password is never sent in the
-             clear; the livejournal "challenge" password mechanism is used.
+  password - The account password. This password is sent in the clear,
+             so if you specify an alternative server, ensure you use
+             a URL starting with https:// so the connection is encrypted.
+             If not provided here, will prompt for it when run.
 
   journal - Optional: The journal to download entries from. If this is
             not specified, the "username" journal is downloaded. If this
