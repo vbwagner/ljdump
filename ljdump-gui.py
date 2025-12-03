@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 # ljdump-gui.py - gui interface to ljdump
-# Greg Hewgill <greg@hewgill.com> http://hewgill.com
+# Greg Hewgill <greg@hewgill.com> https://hewgill.com
 #
 # NOTE: This is a work in progress and is probably not suitable for
 #       general release just yet.
@@ -52,7 +52,7 @@ def do_ok(event = None):
     ok['state'] = DISABLED
     cancel['state'] = DISABLED
     global gWorkerThread
-    gWorkerThread = threading.Thread(None, ljdump.ljdump, args=("http://livejournal.com", username.get(), password.get()))
+    gWorkerThread = threading.Thread(None, ljdump.ljdump, args=("https://livejournal.com", username.get(), password.get(), journal.get()))
     gWorkerThread.start()
     poll()
 
@@ -66,13 +66,16 @@ root.title("ljdump")
 body = Frame(root)
 Label(body, text="Username:").grid(row=0, sticky=W)
 Label(body, text="Password:").grid(row=1, sticky=W)
-Label(body, text="Status:").grid(row=2, sticky=W)
+Label(body, text="Journal:").grid(row=2, sticky=W)
+Label(body, text="Status:").grid(row=3, sticky=W)
 username = Entry(body)
 password = Entry(body, show="*")
+journal = Entry(body)
 status = Label(body, text="Waiting")
 username.grid(row=0, column=1)
 password.grid(row=1, column=1)
-status.grid(row=2, column=1, sticky=W)
+journal.grid(row=2, column=1)
+status.grid(row=3, column=1, sticky=W)
 body.pack(padx=5, pady=5)
 
 box = Frame(root)

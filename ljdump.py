@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 # ljdump.py - livejournal archiver
-# Greg Hewgill <greg@hewgill.com> http://hewgill.com
+# Greg Hewgill <greg@hewgill.com> https://hewgill.com/
 # Version 1.5.1
 #
 # LICENSE
@@ -24,7 +24,7 @@
 #
 # Copyright (c) 2005-2010 Greg Hewgill and contributors
 
-import codecs, os, pickle, pprint, re, shutil, sys, urllib2, xml.dom.minidom, xmlrpclib
+import argparse, codecs, os, pickle, pprint, re, shutil, sys, urllib2, xml.dom.minidom, xmlrpclib
 import time
 from xml.sax import saxutils
 
@@ -114,7 +114,7 @@ def gettext(e):
         return ""
     return e[0].firstChild.nodeValue
 
-def ljdump(Server, Username, Password, Journal):
+def ljdump(Server, Username, Password, Journal, verbose=True):
     m = re.search("(.*)/interface/xmlrpc", Server)
     if m:
         Server = m.group(1)
@@ -123,7 +123,8 @@ def ljdump(Server, Username, Password, Journal):
     else:
         authas = ""
 
-    print "Fetching journal entries for: %s" % Journal
+    if verbose:
+        print("Fetching journal entries for: %s" % Journal)
     try:
         os.mkdir(Journal)
         print "Created subdirectory: %s" % Journal
@@ -208,7 +209,7 @@ def ljdump(Server, Username, Password, Journal):
             writelast(Journal, lastsync, lastmaxid)
 
     # The following code doesn't work because the server rejects our repeated calls.
-    # http://www.livejournal.com/doc/server/ljp.csp.xml-rpc.getevents.html
+    # https://www.livejournal.com/doc/server/ljp.csp.xml-rpc.getevents.html
     # contains the statement "You should use the syncitems selecttype in
     # conjuntions [sic] with the syncitems protocol mode", but provides
     # no other explanation about how these two function calls should
@@ -229,7 +230,8 @@ def ljdump(Server, Username, Password, Journal):
     #        newentries += 1
     #        lastsync = item['eventtime']
 
-    print "Fetching journal comments for: %s" % Journal
+    if verbose:
+        print("Fetching journal comments for: %s" % Journal)
 
     try:
         f = open("%s/comment.meta" % Journal)
@@ -347,7 +349,8 @@ def ljdump(Server, Username, Password, Journal):
     writelast(Journal, lastsync, lastmaxid)
 
     if Username == Journal:
-        print "Fetching userpics for: %s" % Username
+        if verbose:
+            print("Fetching userpics for: %s" % Username)
         f = open("%s/userpics.xml" % Username, "w")
         print >>f, """<?xml version="1.0"?>"""
         print >>f, "<userpics>"
@@ -369,14 +372,19 @@ def ljdump(Server, Username, Password, Journal):
         print >>f, "</userpics>"
         f.close()
 
-    if origlastsync:
-        print "%d new entries, %d new comments (since %s)" % (newentries, newcomments, origlastsync)
-    else:
-        print "%d new entries, %d new comments" % (newentries, newcomments)
+    if verbose or (newentries > 0 or newcomments > 0):
+        if origlastsync:
+            print("%d new entries, %d new comments (since %s)" % (newentries, newcomments, origlastsync))
+        else:
+            print("%d new entries, %d new comments" % (newentries, newcomments))
     if errors > 0:
         print "%d errors" % errors
 
 if __name__ == "__main__":
+    args = argparse.ArgumentParser(description="Livejournal archive utility")
+    args.add_argument("--quiet", "-q", action='store_false', dest='verbose',
+                      help="reduce log output")
+    args = args.parse_args()
     if os.access("ljdump.config", os.F_OK):
         config = xml.dom.minidom.parse("ljdump.config")
         server = config.documentElement.getElementsByTagName("server")[0].childNodes[0].data
@@ -385,16 +393,18 @@ if __name__ == "__main__":
         journals = config.documentElement.getElementsByTagName("journal")
         if journals:
             for e in journals:
-                ljdump(server, username, password, e.childNodes[0].data)
+                ljdump(server, username, password, e.childNodes[0].data, args.verbose)
         else:
-            ljdump(server, username, password, username)
+            ljdump(server, username, password, username, args.verbose)
     else:
         from getpass import getpass
         print "ljdump - livejournal archiver"
         print
+        default_server = "https://livejournal.com"
+        server = raw_input("Alternative server to use (e.g. 'https://www.dreamwidth.org'), or hit return for '%s': " % default_server) or default_server
+        print
         print "Enter your Livejournal username and password."
         print
-        server = "http://livejournal.com"
         username = raw_input("Username: ")
         password = getpass("Password: ")
         print
@@ -405,7 +415,7 @@ if __name__ == "__main__":
         journal = raw_input("Journal to back up (or hit return to back up '%s'): " % username)
         print
         if journal:
-            ljdump(server, username, password, journal)
+            ljdump(server, username, password, journal, args.verbose)
         else:
-            ljdump(server, username, password, username)
+            ljdump(server, username, password, username, args.verbose)
 # vim:ts=4 et:	
