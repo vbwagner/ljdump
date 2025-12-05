@@ -27,6 +27,7 @@
 import argparse
 import codecs
 import os
+import time
 import pickle
 import pprint
 import re
@@ -165,6 +166,7 @@ def ljdump(Server, Username, Password, Journal, verbose=True):
         userpics['*'] = r['defaultpicurl']
 
     while True:
+        time.sleep(0.2)
         r = server.LJ.XMLRPC.syncitems(authed({
             'ver': 1,
             'lastsync': lastsync,
@@ -177,6 +179,7 @@ def ljdump(Server, Username, Password, Journal, verbose=True):
             if item['item'][0] == 'L':
                 print(f"Fetching journal entry {item['item']} ({item['action']})")
                 try:
+                    time.sleep(0.2)
                     e = server.LJ.XMLRPC.getevents(authed({
                         'ver': 1,
                         'selecttype': "one",
@@ -193,6 +196,10 @@ def ljdump(Server, Username, Password, Journal, verbose=True):
                     print(f"Error getting item: {item['item']}")
                     pprint.pprint(x)
                     errors += 1
+                    if str(x).find("will be able to continue posting within an hour."):
+                        print("Waiting a hour")
+                        time.sleep(3600)
+                        continue
             lastsync = item['time']
             writelast(Journal, lastsync, lastmaxid)
 
@@ -235,6 +242,7 @@ def ljdump(Server, Username, Password, Journal, verbose=True):
     maxid = lastmaxid
     while True:
         try:
+            time.sleep(0.2)
             with urllib.request.urlopen(urllib.request.Request(Server + f"/export_comments.bml?get=comment_meta&startid={maxid+1}{authas}", headers = {'Cookie': "ljsession="+ljsession})) as r:
                 meta = xml.dom.minidom.parse(r)
         except Exception as x:
